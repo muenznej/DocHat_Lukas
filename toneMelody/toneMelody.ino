@@ -15,16 +15,13 @@
 //};
 
 int melody[] = {
-  TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
-  TERZ_D4,
-  TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
-  TERZ_D4,
-  TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
-  TERZ_D4,
-  TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
-  TERZ_D4, NOTE_PAUSE, NOTE_E5, NOTE_E5,
+  //TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
+  NOTE_E3, NOTE_E3, NOTE_D3, NOTE_E3, NOTE_PAUSE, NOTE_C3,
+  NOTE_D3,
+  NOTE_E3, NOTE_E3, NOTE_D3, NOTE_E3, NOTE_PAUSE, NOTE_C3,
+  NOTE_D3, NOTE_PAUSE, NOTE_E5, NOTE_E5,
   NOTE_E5, NOTE_E5, NOTE_D5, NOTE_E5, NOTE_PAUSE, NOTE_B4, NOTE_A4, NOTE_G4,
-  NOTE_PAUSE, NOTE_A4, NOTE_G4, NOTE_E4, NOTE_E4,
+  NOTE_PAUSE, NOTE_A4, NOTE_G4, NOTE_D4, NOTE_E4,
   NOTE_PAUSE,
   NOTE_PAUSE, NOTE_E5, NOTE_E5,
   NOTE_E5, NOTE_E5, NOTE_D5, NOTE_E5, NOTE_PAUSE,
@@ -38,16 +35,12 @@ int melody[] = {
 
 // NOTE durations: 4 = quarter NOTE, 8 = eighth NOTE, etc.:
 float NOTEDurations[] = {
-  8, 8, 8, 8, 2,
+  8, 8, 8, 8, 4, 4,
   1,
-  8, 8, 8, 8, 2,
-  1,
-  8, 8, 8, 8, 2,
-  1,
-  8, 8, 8, 8, 2,
+  8, 8, 8, 8, 4, 4,
   2, 4, 8, 8,
   8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8 / 3, 8 / 6,
+  8, 8, 8, 8 / 1, 8 / 7,
   2,
   4 / 3, 8, 8,
   8, 8, 8, 8, 2,
@@ -59,10 +52,8 @@ float NOTEDurations[] = {
   2
 };
 
-
-
-const float bps = 106 / 60 / 4;
-const float bps_ms = bps * 1000;
+float bps = 106 / 60;
+float bps_ms = bps * 1000;
 
 void setup() {
   pinMode(SOUND_PIN, OUTPUT);
@@ -73,7 +64,7 @@ void setup() {
 
   // iterate over the NOTEs of the melody:
   for (int thisNOTE = 0; thisNOTE < sizeof(melody); thisNOTE++) {
-    int NOTEDuration = 1000 / NOTEDurations[thisNOTE];
+    int NOTEDuration = bps_ms / NOTEDurations[thisNOTE] * 1.8;
 
     // check for TERZ_D4, quickly alter that tone
     if (melody[thisNOTE] == -1) {
@@ -85,7 +76,7 @@ void setup() {
     }
     else {
       tone(SOUND_PIN, melody[thisNOTE], NOTEDuration);
-      int pauseBetweenNOTEs = NOTEDuration * 1.0;
+      int pauseBetweenNOTEs = NOTEDuration ;
       delay(pauseBetweenNOTEs);
     }
     noTone(SOUND_PIN);
@@ -94,17 +85,22 @@ void setup() {
 
 
 void loop() {
-noTone(SOUND_PIN);
+  noTone(SOUND_PIN);
 }
 
 void playTerz( int a, int b, int NOTEDuration ) {
-  int mydevide = 2;
-  int pauseBetweenNOTEs = NOTEDuration /2/mydevide;
+  int mydevide = 8;
+  int pauseBetweenNOTEs = NOTEDuration / 2 / mydevide;
   for (int ii = 1; ii <= mydevide ; ii++) {
-    tone(SOUND_PIN, a, NOTEDuration  /mydevide*2);
-    delay(pauseBetweenNOTEs);
-    tone(SOUND_PIN, b, NOTEDuration /mydevide*2);
-    delay(pauseBetweenNOTEs);
+    tone(SOUND_PIN, a, NOTEDuration  / mydevide / 2);
+    delay(100);
+    noTone(SOUND_PIN);
+    //delay(pauseBetweenNOTEs);
+    tone(SOUND_PIN, b, NOTEDuration / mydevide / 2);
+    
+    delay(100);
+    noTone(SOUND_PIN);
+    //delay(pauseBetweenNOTEs);
   }
 }
 
