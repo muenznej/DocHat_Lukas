@@ -13,6 +13,8 @@ int motor[] = {5, 6, 9, 10};
 #define sensorPin A1 // select the input pin for the potentiometer
 #define SOUND_PIN 11
 #define LED_PIN 8
+#define RED_EYES_LED 7
+
 
 int melody[] = {
   //TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
@@ -32,7 +34,7 @@ int melody[] = {
   NOTE_PAUSE, NOTE_E4, NOTE_E4,
   NOTE_PAUSE
 };
-
+//62
 // NOTE durations: 4 = quarter NOTE, 8 = eighth NOTE, etc.:
 float NOTEDurations[] = {
   8, 8, 8, 8, 4, 4,
@@ -60,7 +62,8 @@ void setup() {
   pinMode(SOUND_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
-
+  digitalWrite(RED_EYES_LED,LOW);
+  
   for (int i = 0; i < 4; i++) {
     pinMode(motor[i], OUTPUT);
     pinMode(motor[i], OUTPUT);
@@ -87,15 +90,20 @@ void loop() {
   Serial.print(sensorValue, DEC);
   Serial.print(", ");
   Serial.println(val, DEC);
-  if ( val < 0.5) {
+  if ( val < 0.6) {
     if (!hasPlayed) {
-      digitalWrite(LED_PIN, LOW);
+      Serial.println("Melody started");
       playMelody();
+      Serial.println("Melody stopped");
+      digitalWrite(LED_PIN, LOW);
+      digitalWrite(SOUND_PIN, LOW);
       hasPlayed = true; //for finale
       delay(1000);
       if (!hasDrummed) {
+        Serial.println("Drum started");
         playDrums();
         hasDrummed = true;
+        Serial.println("Drum stopped");
       }
     }
   }
@@ -105,18 +113,13 @@ void playDrums() {
   int t = 300;
   float s = 0.6;
   for ( int ii = 1; ii < 11; ii++) {
-
+  digitalWrite(RED_EYES_LED,LOW);
     drive(0, +s);
+    drive(1, +s);
     delay(t);
     drive(0, 0);
-    delay(300);
-    
-    drive(1, 1.0);
-    delay(200);
     drive(1, 0);
-    
-    delay(100);
-
+    digitalWrite(RED_EYES_LED,HIGH);
   }
   drive(0, 0);
 }
@@ -137,9 +140,12 @@ void playTerz( int a, int b, int NOTEDuration ) {
 }
 
 void playMelody( ) {
+  int m = 0;
   // iterate over the NOTEs of the melody:
-  for (int thisNOTE = 0; thisNOTE < sizeof(melody); thisNOTE++) {
+  //for (int thisNOTE = 0; thisNOTE < sizeof(melody); thisNOTE++) {
+  for (int thisNOTE = 0; thisNOTE < 61; thisNOTE++) {
     int NOTEDuration = bps_ms / NOTEDurations[thisNOTE] * 1.8;
+    //int NOTEDuration = bps_ms / NOTEDurations[thisNOTE] * 0.2;
 
     // check for TERZ_D4, quickly alter that tone
     if (melody[thisNOTE] == -1) {
@@ -152,7 +158,17 @@ void playMelody( ) {
     else {
       tone(SOUND_PIN, melody[thisNOTE], NOTEDuration);
       int pauseBetweenNOTEs = NOTEDuration ;
+      if (thisNOTE % 2 == 0) {
+        m = 1;
+      }
+      else {
+        m = 0;
+      }
+      drive(m, 1);
+      delay(20);
+      drive(m, .27);
       delay(pauseBetweenNOTEs);
+      drive(m, 0);
     }
     noTone(SOUND_PIN);
   }
