@@ -2,14 +2,7 @@ int motor[] = {5, 6, 9, 10};
 
 void setup() {
   Serial.begin(9600);
-  int i;
-  for (i = 0; i < 4; i++) {
-    pinMode(motor[i], OUTPUT);
-    pinMode(motor[i], OUTPUT);
-  }
 
-  int t = 400;
-  float s = 0.22;
 
   for ( int ii = 1; ii < 5; ii++) {
 

@@ -2,11 +2,15 @@
 
 int MAXINT = 0;
 boolean hasPlayed = false;
+boolean hasDrummed = false;
+
+int motor[] = {5, 6, 9, 10};
+
+
 #define TERZ_D4 -1
 #define TERZ_E4 -2
 
 #define sensorPin A1 // select the input pin for the potentiometer
-#define ledPin 7 // select the pin for the LED
 #define SOUND_PIN 11
 
 int melody[] = {
@@ -52,11 +56,12 @@ float bps_ms = bps * 1000;
 
 void setup() {
   Serial.begin(9600);
-
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, HIGH);
-
   pinMode(SOUND_PIN, OUTPUT);
+
+  for (int i = 0; i < 4; i++) {
+    pinMode(motor[i], OUTPUT);
+    pinMode(motor[i], OUTPUT);
+  }
 
   int tmp = 0;
   int cc = 0;
@@ -66,24 +71,50 @@ void setup() {
     delay(50);
   }
   MAXINT = tmp / cc;
+  Serial.print("Reference Value: ");
   Serial.println(MAXINT, DEC);
+  delay(2000);
 }
 
 
 void loop() {
   int sensorValue = 0; // variable to store the value coming from the sensor
-
   sensorValue = analogRead(sensorPin);
-  if ((sensorValue / MAXINT) < 0.5) {
+  float val = float(sensorValue) / float(MAXINT) ;
+  Serial.print(sensorValue, DEC);
+  Serial.print(", ");
+  Serial.println(val, DEC);
+  if ( val < 0.5) {
     if (!hasPlayed) {
-      playMelody();
-      //hasPlayed = true; for finale
+      //playMelody();
+      hasPlayed = true; //for finale
+      delay(1000);
+      playDrums();
+      hasDrummed = true;
     }
-    Serial.println(sensorValue, DEC);
   }
 
 }
+void playDrums() {
 
+
+  int t = 400;
+  float s = 0.22;
+  for ( int ii = 1; ii < 5; ii++) {
+
+    drive(0, +s);
+    delay(t);
+    drive(0, 0);
+
+    delay(200);
+
+    drive(0, -s);
+    delay(t);
+    drive(0, 0);
+
+  }
+  drive(0, 0);
+}
 void playTerz( int a, int b, int NOTEDuration ) {
   int mydevide = 8;
   int pauseBetweenNOTEs = NOTEDuration / 2 / mydevide;
@@ -122,3 +153,27 @@ void playMelody( ) {
   }
 }
 
+void drive(byte motorID, float rotSpeed) {
+  byte max_speed = 255;
+  byte this_speed = (byte)(max_speed * abs(rotSpeed));
+  byte val1 = 0;
+  byte val2 = 0;
+
+  if ( rotSpeed < 0 ) {
+    val1 = 0;
+    val2 = this_speed;
+  }
+  else if ( rotSpeed > 0 )  {
+    val1 = this_speed;
+    val2 = 0;
+  }
+
+  if (motorID == 0) { // left arm
+    analogWrite(motor[0], val1);
+    analogWrite(motor[1], val2);
+  }
+  if (motorID == 1) { // right arm
+    analogWrite(motor[2], val1);
+    analogWrite(motor[3], val2);
+  }
+}
