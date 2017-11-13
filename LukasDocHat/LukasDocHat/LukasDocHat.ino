@@ -12,6 +12,7 @@ int motor[] = {5, 6, 9, 10};
 
 #define sensorPin A1 // select the input pin for the potentiometer
 #define SOUND_PIN 11
+#define LED_PIN 8
 
 int melody[] = {
   //TERZ_E4, TERZ_E4, TERZ_D4, TERZ_E4, NOTE_PAUSE,
@@ -57,6 +58,8 @@ float bps_ms = bps * 1000;
 void setup() {
   Serial.begin(9600);
   pinMode(SOUND_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
 
   for (int i = 0; i < 4; i++) {
     pinMode(motor[i], OUTPUT);
@@ -73,7 +76,7 @@ void setup() {
   MAXINT = tmp / cc;
   Serial.print("Reference Value: ");
   Serial.println(MAXINT, DEC);
-  delay(2000);
+  //delay(2000);
 }
 
 
@@ -86,31 +89,33 @@ void loop() {
   Serial.println(val, DEC);
   if ( val < 0.5) {
     if (!hasPlayed) {
-      //playMelody();
+      digitalWrite(LED_PIN, LOW);
+      playMelody();
       hasPlayed = true; //for finale
       delay(1000);
-      playDrums();
-      hasDrummed = true;
+      if (!hasDrummed) {
+        playDrums();
+        hasDrummed = true;
+      }
     }
   }
 
 }
 void playDrums() {
-
-
-  int t = 400;
-  float s = 0.22;
-  for ( int ii = 1; ii < 5; ii++) {
+  int t = 300;
+  float s = 0.6;
+  for ( int ii = 1; ii < 11; ii++) {
 
     drive(0, +s);
     delay(t);
     drive(0, 0);
-
+    delay(300);
+    
+    drive(1, 1.0);
     delay(200);
-
-    drive(0, -s);
-    delay(t);
-    drive(0, 0);
+    drive(1, 0);
+    
+    delay(100);
 
   }
   drive(0, 0);
